@@ -1,0 +1,6 @@
+[gerrit]
+host=code.engineering.redhat.com
+port=22
+project=rhos-qe-tests/tempest_common_plugin
+defaultremote=origin
+defaultbranch=master

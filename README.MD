@@ -1,6 +1,6 @@
 # Benny Kopilov
 # Prerequisites:
-
+```
 HOME_DIR=/home/stack
 
 
@@ -17,9 +17,11 @@ git clone https://github.com/bkopilov/tempest_common_plugin.git
 cd $HOME_DIR/tempest_common_plugin
 # install downstream plugin under tempest
 pip install --upgrade -e .
+```
 
 # we assume that tempest.conf aready configured manually or with a script .
 
+```
 TEMPEST_FILE=/home/stack/tempest/etc/tempest.conf
 
 # create tempest account.yaml to run tests with demo tenants.
@@ -28,6 +30,8 @@ wget http://storage-jenkins.scl.lab.tlv.redhat.com/accounts.yaml $HOME_DIR
 sed -i -e "s/test/$OS_PASSWORD/g" $HOME_DIR/accounts.yaml
 sudo yum install -y crudini
 crudini --set $TEMPEST_FILE auth test_accounts_file /home/stack/accounts.yaml
+```
+
 
 # get a list of all tests
 cd $HOME_DIR/tempest

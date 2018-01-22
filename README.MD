@@ -1,28 +1,65 @@
 # Benny Kopilov
 # Prerequisites:
 
-# git clone tempest upstream code
+HOME_DIR=/home/stack
+
+
+easy_install pip
+pip install virtualenv
+virtualenv .venv
+source .venv/bin/activate
+
+cd $HOME_DIR
 git clone https://github.com/openstack/tempest.git
-cd tempest
+pip install -r  $HOME_DIR/tempest/test-requirements.txt -r $HOME_DIR/tempest/requirements.txt
+git config --global http.sslVerify false
+git clone https://github.com/bkopilov/tempest_common_plugin.git
+cd $HOME_DIR/tempest_common_plugin
+# install downstream plugin under tempest
+pip install --upgrade -e .
 
-# git clone plugin code
+# we assume that tempest.conf aready configured manually or with a script .
 
-USERNAME=`whoami` 
-git clone ssh://$USERNAME@code.engineering.redhat.com:22/rhos-qe-tests/tempest_common_plugin
+TEMPEST_FILE=/home/stack/tempest/etc/tempest.conf
 
-cd tempest_common_plugin/tempest_plugin
+# create tempest account.yaml to run tests with demo tenants.
+source $HOME_DIR/overcloudrc
+wget http://storage-jenkins.scl.lab.tlv.redhat.com/accounts.yaml $HOME_DIR
+sed -i -e "s/test/$OS_PASSWORD/g" $HOME_DIR/accounts.yaml
+sudo yum install -y crudini
+crudini --set $TEMPEST_FILE auth test_accounts_file /home/stack/accounts.yaml
 
-# install python packages
+# get a list of all tests
+cd $HOME_DIR/tempest
+testr list-tests
 
-sudo pip install --upgrade -e .
+# run a test from the list
+# By default tempest runs with dynamic credentials (
+# creates a tenant / user/ network for each testcase)
+# testr run [path for the testcase]
 
-# Verify testr list-tests and run:
 
-cd tempest/
+# In order to run a tempest tests with demo user, modify use_dynamic_credentials to False.
+# Example for capture overcloud:
+# crudini --set $TEMPEST_FILE auth use_dynamic_credentials false
+# crudini --set $TEMPEST_FILE oslo_concurrency lock_path /tmp/tempest_lock
+#
+#
+#
+# testr run tempest_common_plugin.tests.scenario.prepare_cloud.test_prepare_cloud.PrepareCloudActions --subunit | tee >(subunit2junitxml --output-to=$HOME_DIR/tempest1.xml) | subunit-2to1
+# rm -rf /tmp/tempest_lock
+#
+# Example for verify cloud capture
+# rm -rf /tmp/tempest_lock
+# crudini --set $TEMPEST_FILE auth use_dynamic_credentials false
+# testr run tempest_common_plugin.tests.scenario.prepare_cloud.test_verify_cloud.VerifyCloudActions --subunit | tee >(subunit2junitxml --output-to=$HOME_DIR/tempest2.xml) | subunit-2to1
+#
+# Example for post verify actions
+# rm -rf /tmp/tempest_lock
+# crudini --set $TEMPEST_FILE auth use_dynamic_credentials false
+# testr run tempest_common_plugin.tests.scenario.prepare_cloud.test_post_cloud.PostCloudActions --subunit | tee >(subunit2junitxml --output-to=$HOME_DIR/tempest3.xml) | subunit-2to1
+#
+# crudini --set $TEMPEST_FILE auth use_dynamic_credentials true
+#
 
-testr init
-
-testr list-tests | grep -i storage
-
-testr run [test_name]
 

@@ -38,22 +38,22 @@ crudini --set $TEMPEST_FILE auth test_accounts_file /home/stack/accounts.yaml
 cd $HOME_DIR/tempest
 testr list-tests
 ```
-### run a test from the list
-### By default tempest runs with dynamic credentials (
-### creates a tenant / user/ network for each testcase)
-###  testr run [path for the testcase]
+run a test from the list
+By default tempest runs with dynamic credentials (
+creates a tenant / user/ network for each testcase)
+testr run [path for the testcase]
 
 
-### In order to run a tempest tests with demo user, modify use_dynamic_credentials to False.
-### Example for capture overcloud:
-### crudini --set $TEMPEST_FILE auth use_dynamic_credentials false
-### crudini --set $TEMPEST_FILE oslo_concurrency lock_path /tmp/tempest_lock
-#
-#
+In order to run a tempest tests with demo user, modify use_dynamic_credentials to False.
+Example for capture overcloud:
+crudini --set $TEMPEST_FILE auth use_dynamic_credentials false
+crudini --set $TEMPEST_FILE oslo_concurrency lock_path /tmp/tempest_lock
+
+
 ```
  testr run tempest_common_plugin.tests.scenario.prepare_cloud.test_prepare_cloud.PrepareCloudActions --subunit | tee >(subunit2junitxml --output-to=$HOME_DIR/tempest1.xml) | subunit-2to1
  rm -rf /tmp/tempest_lock
-#
+
 # Example for verify cloud capture
  rm -rf /tmp/tempest_lock
  crudini --set $TEMPEST_FILE auth use_dynamic_credentials false

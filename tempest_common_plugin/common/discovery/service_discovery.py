@@ -1,6 +1,6 @@
 
 from discovery import DiscoveryManager
-from tempest_common_plugin.common.remote_client.ssh.remote_client \
+from tempest_common_plugin.common.remote_client.ssh_client \
     import RemoteClient
 
 

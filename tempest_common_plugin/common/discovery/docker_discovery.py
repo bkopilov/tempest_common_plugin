@@ -1,6 +1,6 @@
 
 from discovery import DiscoveryManager
-from tempest_common_plugin.common.remote_client.ssh.remote_client \
+from tempest_common_plugin.common.remote_client.ssh_client \
     import RemoteClient
 
 
@@ -47,7 +47,7 @@ class DockerDiscovery(DiscoveryManager):
             raise RuntimeError("Can not find any node under service name %s"
                                % name)
 
-        def get_nodes_info_by_container(self, container_name):
+        def get_nodes_info_by_name(self, container_name):
             if self.store_nodes.get(container_name):
                 return self.store_nodes[container_name]
             raise RuntimeError("Can not find any node under service name %s"

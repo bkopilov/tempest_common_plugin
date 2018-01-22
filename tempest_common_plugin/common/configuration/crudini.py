@@ -17,7 +17,7 @@ import os
 
 from tempest.lib.common.utils import data_utils
 
-from tempest_common_plugin.common.restartability.restartability import RestartManager
+from tempest_common_plugin.common.high_availability.restartability import RestartManager
 
 
 class Crudini(object):

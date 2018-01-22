@@ -16,7 +16,7 @@
 import re
 from collections import defaultdict
 
-from tempest_common_plugin.common.remote_client.ssh.remote_client \
+from tempest_common_plugin.common.remote_client.ssh_client \
     import RemoteClient
 
 

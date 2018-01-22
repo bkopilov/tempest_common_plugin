@@ -4,7 +4,7 @@ import tempest_common_plugin.common.exceptions as \
     tempest_exception
 
 
-class ServiceManager(object):
+class RestartManager(object):
     RETRY_COUNT = 20
     TIME_BETWEEN_RETRIES = 6
 
@@ -18,8 +18,6 @@ class ServiceManager(object):
         self.ssh_clients = ssh_clients
         self.service_name = service_name
         self.docker_container_name = docker_container_name
-        self.docker_exec = "sudo docker exec --user root {0} ".format(
-            self.docker_container_name)
 
     def status(self, ssh_client):
         """
@@ -27,11 +25,11 @@ class ServiceManager(object):
         :param ssh_client:
         :return:
         """
-        if self.docker_container_name is None:
+        if self.service_name:
             status = ssh_client.run_command(
                 "sudo systemctl is-active {0} ".format(
                     self.service_name)).strip()
-        else:
+        elif self.docker_container_name:
             docker_status = \
                 """sudo docker ps -a --filter 'name={0}'| grep -v CONT"""\
                 .format(self.docker_container_name)
@@ -47,13 +45,15 @@ class ServiceManager(object):
         if len(ssh_client) == 0:
             ssh_client = self.ssh_clients
         for ssh in ssh_client:
-            if self.docker_container_name is None:
+            if self.service_name:
                 ssh.run_command("sudo systemctl stop {0}"
                                 .format(self.service_name))
-            else:
+            elif self.docker_container_name:
                 ssh.run_command("sudo docker stop {0}".format(
                     self.docker_container_name))
                 self._wait_for_service_status(ssh, status="Exited")
+            else:
+                raise RuntimeError("Type is not value")
 
     def start(self, ssh_client=[]):
         """
@@ -64,14 +64,16 @@ class ServiceManager(object):
         if len(ssh_client) == 0:
             ssh_client = self.ssh_clients
         for ssh in ssh_client:
-            if self.docker_container_name is None:
+            if self.service_name:
                 ssh.run_command("sudo systemctl start {0}"
                                 .format(self.service_name))
                 self._wait_for_service_status(ssh_client, self.service_name)
-            else:
+            elif self.docker_container_name:
                 ssh.run_command("sudo docker start {0}"
                                 .format(self.docker_container_name))
                 self._wait_for_service_status(ssh, status="Up")
+            else:
+                raise RuntimeError("Type is not valid")
 
     def restart(self, ssh_client=[], timeout_before_checking_status=5):
         """
@@ -82,16 +84,18 @@ class ServiceManager(object):
         if len(ssh_client) == 0:
             ssh_client = self.ssh_clients
         for ssh in ssh_client:
-            if self.docker_container_name is None:
+            if self.service_name:
                 ssh.run_command("sudo systemctl restart {0}"
                                 .format(self.service_name))
                 time.sleep(timeout_before_checking_status)
                 self._wait_for_service_status(ssh)
-            else:
+            elif self.docker_container_name:
                 ssh.run_command("sudo docker restart {0}"
                                 .format(self.docker_container_name))
                 time.sleep(timeout_before_checking_status)
                 self._wait_for_service_status(ssh, status="Up")
+            else:
+                raise RuntimeError("Type is not valid")
 
     def _wait_for_service_status(self, ssh_client, status="active"):
         retry_count = 0

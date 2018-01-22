@@ -1,18 +1,17 @@
-
 from queue import Queue
 
-import threading
+import tempest_common_plugin.common.threading
 import random
 
 
 class ThreadManager(object):
-
-    def __init__(self, callback, number_of_threads, infinite_loop=False,
+    def __init__(self, callback, number_of_threads=None, infinite_loop=False,
                  kwargs_list=None):
         """
 
         :param callback: Reference to function to run in a thread
         :param kwargs_list: list of dictionaries, each one trigger a thread
+               When number_of_threads is None.
         :param number_of_threads: When this option not none, kward can be :
         empty - callback without params
         with kwargs - same kwargs[0] to all callback
@@ -44,13 +43,25 @@ class ThreadManager(object):
         thread.start()
 
     def start(self):
-        workers = self.number_of_threads
+        """
+        Few cases for start:
+        self.number_of thread without kwargs - function without args
+        self.number_of_thread with a single kwarg_list - run all function
+        with same kwargs.
+        self.kwargs_list is a list to run the same function
+
+        :return:
+        """
+        workers = self.number_of_threads or self.kwargs_list
         # starting threads
         start_index = 0
         while start_index < workers:
-            if self.kwargs_list:
+            if self.kwargs_list and self.number_of_threads is None:
                 self._start_thread(self.callback,
                                    kwargs_list=self.kwargs_list[start_index])
+            elif self.kwargs_list and self.number_of_threads:
+                self._start_thread(self.callback,
+                                   kwargs_list=self.kwargs_list[0])
             else:
                 self._start_thread(self.callback)
             start_index += 1
@@ -72,12 +83,15 @@ class ThreadManager(object):
         return self._shared_queue.queue
 
 
-class MyThread(threading.Thread):
+class MyThread(tempest_common_plugin.common.threading.Thread):
     def __init__(self, callback, shared_queue, infinite_loop=False,
                  kwargs=None):
         """
-        :param callback:  a single thread with a callback
-        :param kwargs_list: a dictionary of params
+
+        :param callback: function reference to run
+        :param shared_queue: an atomic queue to get/put
+        :param infinite_loop: In case we want to run forever
+        :param kwargs: dictionary , param to functions
         """
         randbits = str(random.randint(1, 0x7fffffff))
         super(MyThread, self).__init__(name="test_" + randbits)
@@ -105,4 +119,9 @@ class MyThread(threading.Thread):
                         self.callback, self.kwargs, str(e.message))))
 
     def set_infinite_loop(self, boolean):
+        """
+
+        :param boolean: False to stop the thread, similar to join .
+        :return:
+        """
         self._infinite_loop = boolean

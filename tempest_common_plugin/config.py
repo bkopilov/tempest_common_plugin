@@ -58,38 +58,3 @@ SshAuthenticationGroup = [
                help="ssh private key file location")
 ]
 
-ceph_group = cfg.OptGroup(name="ceph",
-                          title="ceph params")
-
-CephGroup = [
-    cfg.StrOpt('user',
-               default='root',
-               help="ssh user to login to ceph"),
-    cfg.StrOpt('password',
-               default=None,
-               help="ssh password login user"),
-]
-
-swift_group = cfg.OptGroup(name="swift",
-                           title="Swift params")
-
-SwiftGroup = [
-    cfg.BoolOpt('mount_check',
-                default=False,
-                help="Auto set SwiftMountCheck. If Swift is backed by a raw "
-                     "disk, as opposed to a directory, the mount_check option "
-                     "in the DEFAULT section of /etc/swift/{account,container "
-                     ",object} -server.conf should be set to true, or bad "
-                     "things will happen[*]"),
-    cfg.ListOpt('swift_external_nodes',
-                default=['10.35.162.14', '10.35.162.15', '10.35.162.16',
-                         '10.35.162.17', '10.35.162.18', '10.35.162.19'],
-                help="A list of static external swift nodes"),
-    cfg.StrOpt('swift_device',
-               default='sdb',
-               help="a swift remote device name"),
-    cfg.StrOpt('swift_nodes_password',
-               default='qum5net',
-               help="swift remote nodes password"),
-
-]

@@ -14,9 +14,10 @@
 #    under the License.
 
 import os
+
 from tempest.lib.common.utils import data_utils
-from tempest_common_plugin.common.utils.linux.\
-    service_restartability import ServiceManager
+
+from tempest_common_plugin.common.restartability.restartability import RestartManager
 
 
 class Crudini(object):
@@ -60,7 +61,7 @@ class Crudini(object):
                 "sudo rm -rf /tmp/{0}.tar.gz".format(self.directory_name))
 
         if restart:
-                service = ServiceManager(
+                service = RestartManager(
                     ssh_clients=self.ssh_client_list,
                     docker_container_name=self.docker_container_name,
                     service_name=self.service_name)
@@ -72,7 +73,7 @@ class Crudini(object):
             ssh_client.run_command(
                 'sudo mv /tmp/{0} {1}'.format(os.path.basename(
                     self.config_file), self.config_file))
-            service = ServiceManager(
+            service = RestartManager(
                 ssh_clients=self.ssh_client_list,
                 docker_container_name=self.docker_container_name,
                 service_name=service_name_restart)

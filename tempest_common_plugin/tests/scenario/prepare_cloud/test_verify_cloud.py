@@ -15,14 +15,12 @@
 
 
 from tempest import config
-
 from tempest.lib import decorators
 
-from tempest_common_plugin.common.utils.linux.compare_dictionary\
+from tempest_common_plugin.common.capture_cloud.compare_dictionary \
     import CompareDictionary
-from tempest_common_plugin.common.utils.linux.json_actions\
+from tempest_common_plugin.common.capture_cloud.json_actions \
     import JsonManager
-
 from tempest_common_plugin.tests.scenario import manager
 
 CONF = config.CONF
